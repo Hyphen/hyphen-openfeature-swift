@@ -15,7 +15,7 @@ public struct HyphenMetadata: ProviderMetadata {
     public var name: String? = "hyphen-provider-swift"
 }
 
-final class HyphenProvider: FeatureProvider {
+public final class HyphenProvider: FeatureProvider {
     private lazy var logger: LoggerManagerProtocol = {
         .default(
             subsystem: "hyphen-provider-swift",
@@ -23,7 +23,7 @@ final class HyphenProvider: FeatureProvider {
         )
     }()
     
-    internal init(using configuration: HyphenConfiguration, hooks: [any OpenFeature.Hook] = []) {
+    public init(using configuration: HyphenConfiguration, hooks: [any OpenFeature.Hook] = []) {
         self.metadata = HyphenMetadata()
         self.eventHandler = EventHandler()
         self.configuration = configuration
@@ -39,25 +39,25 @@ final class HyphenProvider: FeatureProvider {
     }
 
     let configuration: HyphenConfiguration
-    var hooks: [any OpenFeature.Hook]
-    let metadata: OpenFeature.ProviderMetadata
+    public var hooks: [any OpenFeature.Hook]
+    public let metadata: OpenFeature.ProviderMetadata
     private var hyphenService: HyphenService
     private let eventHandler: EventHandler
     
-    func initialize(initialContext: EvaluationContext?) async throws {
+    public func initialize(initialContext: EvaluationContext?) async throws {
         logger.info("initialize: initialContext: \(String(describing: initialContext?.getTargetingKey()))")
         
         try await hyphenService.evaluate(with: initialContext)
     }
     
-    func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) async throws {
+    public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) async throws {
         logger.info("onCentextSet: old: \(String(describing: oldContext?.getTargetingKey()))")
         logger.info("onCentextSet: new: \(newContext.getTargetingKey())")
         
         try await hyphenService.evaluate(with: newContext)
     }
     
-    func getBooleanEvaluation(key: String,
+    public func getBooleanEvaluation(key: String,
                               defaultValue: Bool,
                               context: EvaluationContext?) throws -> OpenFeature.ProviderEvaluation<Bool> {
         logger.info("getBooleanEvaluation: key: \(key), targetingId: context: \(String(describing: context?.getTargetingKey()))")
@@ -69,7 +69,7 @@ final class HyphenProvider: FeatureProvider {
         }
     }
     
-    func getStringEvaluation(key: String, defaultValue: String, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<String> {
+    public func getStringEvaluation(key: String, defaultValue: String, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<String> {
         do {
             return try hyphenService.getStringEvaluation(key: key, defaultValue: defaultValue, context: context)
         } catch {
@@ -77,7 +77,7 @@ final class HyphenProvider: FeatureProvider {
         }
     }
     
-    func getIntegerEvaluation(key: String, defaultValue: Int64, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<Int64> {
+    public func getIntegerEvaluation(key: String, defaultValue: Int64, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<Int64> {
         do {
             return try hyphenService.getIntegerEvaluation(key: key, defaultValue: defaultValue, context: context)
         } catch {
@@ -85,7 +85,7 @@ final class HyphenProvider: FeatureProvider {
         }
     }
     
-    func getDoubleEvaluation(key: String, defaultValue: Double, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<Double> {
+    public func getDoubleEvaluation(key: String, defaultValue: Double, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<Double> {
         do {
             return try hyphenService.getDoubleEvaluation(key: key, defaultValue: defaultValue, context: context)
         } catch {
@@ -93,7 +93,7 @@ final class HyphenProvider: FeatureProvider {
         }
     }
     
-    func getObjectEvaluation(key: String, defaultValue: OpenFeature.Value, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<OpenFeature.Value> {
+    public func getObjectEvaluation(key: String, defaultValue: OpenFeature.Value, context: (any OpenFeature.EvaluationContext)?) throws -> OpenFeature.ProviderEvaluation<OpenFeature.Value> {
         do {
             return try hyphenService.getObjectEvaluation(key: key, defaultValue: defaultValue, context: context)
         } catch {
@@ -101,7 +101,7 @@ final class HyphenProvider: FeatureProvider {
         }
     }
     
-    func observe() -> AnyPublisher<OpenFeature.ProviderEvent?, Never> {
+    public func observe() -> AnyPublisher<OpenFeature.ProviderEvent?, Never> {
         eventHandler.observe()
     }
 }
