@@ -36,6 +36,7 @@ public final class HyphenProvider: FeatureProvider {
         self.hooks.append(HookFactory.makeHook(for: .string, service: service))
         self.hooks.append(HookFactory.makeHook(for: .integer, service: service))
         self.hooks.append(HookFactory.makeHook(for: .double, service: service))
+        self.hooks.append(HookFactory.makeHook(for: .object, service: service))
     }
 
     let configuration: HyphenConfiguration
