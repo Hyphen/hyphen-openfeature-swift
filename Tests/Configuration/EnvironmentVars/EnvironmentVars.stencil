@@ -1,6 +1,0 @@
-//swiftlint:disable all
-struct EnvironmentVars {
-    /// Generated using 'EnvironmentVars.stencil' template
-    static let togglePublicKey = "{{ argument.togglePublicKey }}"
-}
-
