@@ -109,7 +109,7 @@ class ObjectHook: Hook {
         self.service = service
     }
     
-    typealias HookValue = Double
+    typealias HookValue = OpenFeature.Value
     
     private let service: HyphenService
 
