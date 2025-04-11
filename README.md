@@ -10,12 +10,16 @@ The **Hyphen Toggle OpenFeature Provider** is an OpenFeature provider implementa
 2. [Setup and Initialization](#setup-and-initialization)
 3. [Usage](#usage)
 4. [Configuration](#configuration)
-5. [Contributing](#contributing)
-6. [License](#license)
+5. [License](#license)
 
 ---
 
 ## Installation
+
+Installation
+============
+
+Using the [Swift Package Manager](https://swift.org/package-manager/): either through Xcode > File > Swift Packages > Add Package Dependency... and enter this repo URL (including the `.git` extension), , then choose `Toggle` target. Or add the line  `.package(url: "https://github.com/jnewkirk/hyphen-openfeature-swift", from: "0.2.0")` in the `dependencies` section of your `Package.swift` file.
 
 ## Setup and Initialization
 To integrate the Hyphen Toggle provider into your application, follow these steps:
@@ -23,61 +27,48 @@ To integrate the Hyphen Toggle provider into your application, follow these step
 1. Configure the provider with your `publicKey` and provider options.
 2. Register the provider with OpenFeature.
 
-```csharp
-using OpenFeature;
-using Hyphen.OpenFeature.Provider;
+```swift
+import Toggle
+import OpenFeature
 
-var publicKey = "your-public-key-here";
+let configuration = HyphenConfiguration(using: "project-public-key",
+                                                application: "hyphen-example-app",
+                                                environment: "development")
 
-// Example with alternateId environment format
-var options = new HyphenProviderOptions
-{
-    Application = "your-application-name",
-    Environment = "production"  // Using alternateId format
-};
-
-// OR using project environment ID format
-// var options = new HyphenProviderOptions
-// {
-//     Application = "your-application-name",
-//     Environment = "pevr_abc123"  // Using project environment ID format
-// };
-
-await OpenFeature.SetProviderAsync(new HyphenProvider(publicKey, options));
+let provider = HyphenProvider(using: Self.configuration)
+await OpenFeatureAPI.shared.setProviderAndWait(provider: provider)
 ```
 
 3. Configure the context needed for feature targeting evaluations, incorporating user or application context.
-```csharp
-HyphenEvaluationContext hyphenEvaluationContext = new HyphenEvaluationContext
-{
-    TargetingKey = "user-123",
-    IpAddress = "203.0.113.42",
-    CustomAttributes = new Dictionary<string, object>
-    {
-        { "subscriptionLevel", "premium" },
-        { "region", "us-east" }
-    },
-    User = new UserContext
-    {
-        Id = "user-123",
-        Email = "user@example.com",
-        Name = "John Doe",
-        CustomAttributes = new Dictionary<string, object>
-        {
-            { "role", "admin" }
-        }
-    }
-};
+```swift
 
-EvaluationContext context = hyphenEvaluationContext.GetEvaluationContext();
+let provider = HyphenProvider(using: configuration)
+let context = hyphenEvaluationContext(
+    targetingKey: "user-123",
+    values: [
+        "CustomAttributes": .structure([
+            "theme": .string("dark"),
+            "betaAccess": .boolean(true)
+        ]),
+        "User": .structure([
+            "Email": .string("mock@example.com"),
+            "Name": .string("Tester"),
+            "CustomAttributes": .structure([
+                "subscription": .string("pro")
+            ])
+        ])
+    ]
+)
+
+await OpenFeatureAPI.shared.setProviderAndWait(provider: provider, initialContext: context)
 ```
 
 ### Usage
 ### Evaluation Context Example
 
-```csharp
-var client = OpenFeature.GetClient();
-var flagValue = await client.GetBooleanValue("feature-flag-key", false, context);
+```swift
+let client = OpenFeatureAPI.shared.getClient()
+let flagDetails: FlagEvaluationDetails<Bool> = client.getDetails(key: ToggleKey.bool, defaultValue: false)
 ```
 
 ## Configuration
@@ -85,43 +76,28 @@ var flagValue = await client.GetBooleanValue("feature-flag-key", false, context)
 
 | Option              | Type      | Required | Description                                     |
 |--------------------|-----------|----------|-------------------------------------------------|
+| `Public Key`       | string    | Yes      | The public key from the Hyphen project          |
 | `Application`      | string    | Yes      | The application id or alternate id              |
 | `Environment`      | string    | Yes      | The environment identifier for the Hyphen project (project environment ID or alternateId). |
 | `HorizonUrls`      | string[]  | No       | Hyphen Horizon URLs for fetching flags         |
 | `EnableToggleUsage`| bool?     | No       | Enable/disable telemetry (default: True).      |
-| `Cache`            | CacheOptions | No       | Configuration for caching evaluations        |
 
-### Cache Configuration
-
-The `cache` option accepts the following properties:
+### Network Options 
 
 | Property              | Type       | Default | Description                                                    |
 |----------------------|------------|---------|----------------------------------------------------------------|
-| `TtlSeconds`         | number     | 300     | Time-to-live in seconds for cached flag evaluations.           |
-| `GenerateCacheKeyFn` | Function   | -       | Custom function to generate cache keys from evaluation context. |
-
-Example with cache configuration:
-
-```csharp
-var options = new HyphenProviderOptions
-{
-    Application = "your-application-name",
-    Environment = "production",
-    Cache = new CacheOptions
-    {
-        TtlSeconds = 600, // 10 minutes
-        GenerateCacheKeyFn = (context) => $"{context.TargetingKey}-{context.User?.Id}"
-    }
-};
-```
+| `useCellularAccess`  | bool       | true    | Use Cellular Access to retrieve toggle evaluations             |
+| `timeout`            | number     | 10      | Timeout in seconds for retrieving the toggle evaluations       |
+| `maxRetries`         | number     | 3       | The number of times we will retry the retrieval of toggles     |
+| `retryDelay`         | number     | 3       | The amount of time we will wait between requests               |
+| `cacheExpiration`    | number     | 900     | ttl for the evaluation response                                |
 
 ### Context
-Provide an `EvaluationContext` to pass contextual data for feature evaluation.
+Provide a `HyphenEvaluationContext` to pass contextual data for feature evaluation.
 
 | Field               | Type                           | Required | Description                    |
 |-------------------|--------------------------------|----------|--------------------------------|
 | `TargetingKey`    | string                         | Yes      | Caching evaluation key        |
-| `IpAddress`       | string                         | No       | User's IP address             |
 | `CustomAttributes`| Dictionary<string, object>     | No       | Additional context information |
 | `User`            | UserContext                    | No       | User-specific information     |
 | `User.Id`         | string                         | No       | Unique identifier of the user |
@@ -129,9 +105,6 @@ Provide an `EvaluationContext` to pass contextual data for feature evaluation.
 | `User.Name`       | string                         | No       | Name of the user |
 | `User.CustomAttributes` | Dictionary<string, object>  | No       | Custom attributes specific to the user |
 
-
-## Contributing
-We welcome contributions to this project! If you'd like to contribute, please follow the guidelines outlined in [CONTRIBUTING.md](CONTRIBUTING.md). Whether it's reporting issues, suggesting new features, or submitting pull requests, your help is greatly appreciated!
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
