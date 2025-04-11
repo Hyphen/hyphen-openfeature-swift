@@ -12,23 +12,23 @@ import Combine
 import SimpleLogger
 
 public struct HyphenMetadata: ProviderMetadata {
-    public var name: String? = "hyphen-provider-swift"
+    public var name: String? = PackageConstants.subsystem
 }
 
 public final class HyphenProvider: FeatureProvider {
     private lazy var logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()
     
-    public init(using configuration: HyphenConfiguration, hooks: [any OpenFeature.Hook] = []) {
+    public init(using configuration: HyphenConfiguration, hooks: [any OpenFeature.Hook] = [], apiClient: ApiClientProtocol = ApiClient()) {
         self.metadata = HyphenMetadata()
         self.eventHandler = EventHandler()
         self.configuration = configuration
         
-        let service = HyphenService(using: configuration)
+        let service = HyphenService(using: configuration, apiClient: apiClient, eventHandler: eventHandler)
         self.hyphenService = service
         
         self.hooks = hooks
@@ -37,6 +37,8 @@ public final class HyphenProvider: FeatureProvider {
         self.hooks.append(HookFactory.makeHook(for: .integer, service: service))
         self.hooks.append(HookFactory.makeHook(for: .double, service: service))
         self.hooks.append(HookFactory.makeHook(for: .object, service: service))
+        
+        self.startInternalMonitoring()
     }
 
     let configuration: HyphenConfiguration
@@ -44,18 +46,34 @@ public final class HyphenProvider: FeatureProvider {
     public let metadata: OpenFeature.ProviderMetadata
     private var hyphenService: HyphenService
     private let eventHandler: EventHandler
+    private var cancellables = Set<AnyCancellable>()
+    private let contextQueue = DispatchQueue(label: "ai.hyphen.contextQueue")
+    private var _lastContext: EvaluationContext?
+
+    var lastContext: EvaluationContext? {
+        get {
+            contextQueue.sync {
+                _lastContext
+            }
+        }
+        set {
+            contextQueue.async(flags: .barrier) {
+                self._lastContext = newValue
+            }
+        }
+    }
     
     public func initialize(initialContext: EvaluationContext?) async throws {
         logger.info("initialize: initialContext: \(String(describing: initialContext?.getTargetingKey()))")
         
-        try await hyphenService.evaluate(with: initialContext)
+        try await evaluate(initialContext)
     }
     
     public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) async throws {
         logger.info("onCentextSet: old: \(String(describing: oldContext?.getTargetingKey()))")
         logger.info("onCentextSet: new: \(newContext.getTargetingKey())")
         
-        try await hyphenService.evaluate(with: newContext)
+        try await evaluate(newContext)
     }
     
     public func getBooleanEvaluation(key: String,
@@ -102,8 +120,35 @@ public final class HyphenProvider: FeatureProvider {
         }
     }
     
-    public func observe() -> AnyPublisher<OpenFeature.ProviderEvent?, Never> {
+    public func observe() -> AnyPublisher<ProviderEvent?, Never> {
         eventHandler.observe()
+    }
+    
+    private func startInternalMonitoring() {
+        eventHandler.observe()
+            .compactMap { $0 }
+            .sink { [weak self] event in
+                guard let self else { return }
+
+                logger.info("Observed internal event: \(event)")
+
+                if event == .stale {
+                    logger.info("Handling stale event: triggering evaluate")
+
+                    Task.detached {
+                        try? await self.evaluate(self.lastContext)
+                    }
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func evaluate(_ context: EvaluationContext?) async throws {
+        try await hyphenService.evaluate(with: context)
+        self.lastContext = context
+        
+        let providerEvent = ProviderEvent.contextChanged
+        eventHandler.send(providerEvent)
     }
 }
 

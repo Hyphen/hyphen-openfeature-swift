@@ -1,18 +1,15 @@
 import Foundation
 import SimpleLogger
 
-final class ApiClient {
+public final class ApiClient: ApiClientProtocol {
     private lazy var logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()
     
-    private var sessionCache: [NetworkOptions: URLSession] = [:]
-    private let sessionQueue = DispatchQueue(label: "api-client.session-cache")
-    
-    internal init() { }
+    public init() { }
     
     private func session(options: NetworkOptions) -> URLSession {
         let configuration = URLSessionConfiguration.default

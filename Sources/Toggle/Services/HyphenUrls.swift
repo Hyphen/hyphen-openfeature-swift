@@ -1,16 +1,10 @@
-//
-//  HyphenUrls.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/25/25.
-//
 import Foundation
 import SimpleLogger
 
 public struct HyphenUrls {
     private var logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()

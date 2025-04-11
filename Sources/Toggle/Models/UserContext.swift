@@ -1,14 +1,7 @@
-//
-//  UserContext.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/20/25.
-//
-
 import Foundation
 import OpenFeature
 
-struct UserContext: Codable, Equatable, Hashable, Sendable {
+public struct UserContext: Codable, Equatable, Hashable, Sendable {
     public let id: UUID
     public let email: String?
     public let name: String?
@@ -18,7 +11,7 @@ struct UserContext: Codable, Equatable, Hashable, Sendable {
         customAttributes.mapValues { $0.anyValue }
     }
 
-    internal init(
+    public init(
         email: String? = nil,
         name: String? = nil,
         customAttributes: [String: CodableValue] = [:]) {
@@ -37,7 +30,7 @@ struct UserContext: Codable, Equatable, Hashable, Sendable {
 }
 
 extension UserContext {
-    static func make(
+    public static func make(
         email: String? = nil,
         name: String? = nil,
         customAttributes: [String: Any] = [:]) -> UserContext {
@@ -69,15 +62,6 @@ extension UserContext {
             customAttributes: customAttributes
         )
     }
-}
-
-extension UserContext {
-    static let mock: UserContext = {
-        return UserContext.make(email: "matthew@silewski.com",
-                                name: "Matthew Osborn",
-                                customAttributes: ["role": "admin"])
-        
-    }()
 }
 
 

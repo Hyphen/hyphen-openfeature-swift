@@ -1,10 +1,3 @@
-//
-//  NetworkError.swift
-//  ptn
-//
-//  Created by Jim Newkirk on 6/9/24.
-//
-
 import Foundation
 
 enum NetworkError: Error {

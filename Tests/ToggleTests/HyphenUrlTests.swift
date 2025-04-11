@@ -1,10 +1,3 @@
-//
-//  UrlListTests.swift
-//  ToggleTests
-//
-//  Created by Jim Newkirk on 3/23/25.
-//
-
 import Testing
 import Foundation
 @testable import Toggle

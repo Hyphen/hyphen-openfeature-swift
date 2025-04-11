@@ -11,7 +11,7 @@ import SimpleLogger
 struct HookTelemetryHelper {
     private static let logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()

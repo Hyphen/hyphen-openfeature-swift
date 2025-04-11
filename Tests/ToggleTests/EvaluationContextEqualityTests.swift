@@ -1,10 +1,3 @@
-//
-//  EvaluationContextEqualityTests.swift
-//  ToggleTests
-//
-//  Created by Jim Newkirk on 3/25/25.
-//
-
 import Foundation
 import Testing
 @testable import Toggle

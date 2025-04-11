@@ -13,18 +13,21 @@ import SimpleLogger
 struct HyphenService {
     private var logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()
 
-    internal init(using configuration: HyphenConfiguration) {
+    internal init(using configuration: HyphenConfiguration, apiClient: ApiClientProtocol = ApiClient(), eventHandler: EventHandler) {
         self.configuration = configuration
+        self.apiClient = apiClient
+        self.eventHandler = eventHandler
     }
 
     private let configuration: HyphenConfiguration
-    private let apiClient: ApiClient = ApiClient()
-    private var evaluationResponse: EvaluationResponse?
+    private let apiClient: ApiClientProtocol
+    private let eventHandler: EventHandler
+    private var evaluationCache = EvaluationCache()
 
     public mutating func evaluate(with evaluationContext: EvaluationContext?)
         async throws
@@ -39,14 +42,17 @@ struct HyphenService {
                 application: configuration.application,
                 environment: configuration.environment)
 
-            let response: EvaluationResponse? = try await apiClient
+            let evaluationResponse: EvaluationResponse? = try await apiClient
                 .request(
                     config: configuration,
                     endpoint: .evaluate,
                     body: context
                 )
 
-            self.evaluationResponse = response
+            if let evaluationResponse {
+                let cachedEvaluationResponse = CachedEvaluationResponse.withTTL(evaluationResponse, ttl: configuration.networkOptions.cacheExpiration)
+                self.evaluationCache = EvaluationCache(cached: cachedEvaluationResponse)
+            }
         } catch {
             logger.error("Evaluation failed: \(error.localizedDescription)")
         }
@@ -89,7 +95,7 @@ struct HyphenService {
 
         do {
             let data = TelemetryData(toggle: evaluation)
-            let telemetry = TelemetryPayload(context: hyphenContext, data: data)
+            let telemetry = TelemetryResponse(context: hyphenContext, data: data)
 
             _ = try await apiClient.request(
                     config: configuration,
@@ -172,10 +178,27 @@ struct HyphenService {
         extract: (CodableValue) -> T?
     ) throws -> ProviderEvaluation<T> {
         logger.info("get\(String(describing: T.self)) Evaluation: key: \(key), targetingId: \(String(describing: context?.getTargetingKey()))")
-
-        guard
-            let context,
-            context.getTargetingKey() == evaluationResponse?.targetingKey
+        
+        guard let cachedResponse = evaluationCache.evaluationResponse else {
+            return ProviderEvaluation(
+                value: defaultValue,
+                errorCode:
+                    OpenFeatureError
+                    .generalError(
+                        message: "Could not retrieve evaluation response"
+                    )
+                    .errorCode(),
+                errorMessage: "Evaluation Response could not be retrieved")
+        }
+        
+        // now that we have a response and if its expired fire the event that will trigger an update to Evaluate
+        if evaluationCache.isExpired() {
+            let providerEvent = ProviderEvent.stale
+            eventHandler.send(providerEvent)
+        }
+        
+        guard let context,
+              context.getTargetingKey() == cachedResponse.targetingKey
         else {
             return ProviderEvaluation(
                 value: defaultValue,
@@ -185,18 +208,7 @@ struct HyphenService {
                     .localizedDescription)
         }
 
-        guard let evaluationResponse else {
-            return ProviderEvaluation(
-                value: defaultValue,
-                errorCode:
-                    OpenFeatureError
-                    .generalError(
-                        message: "Could not retrieve evaluation response"
-                    )
-                    .errorCode())
-        }
-
-        guard let toggle = evaluationResponse.toggles[key] else {
+        guard let toggle = cachedResponse.toggles[key] else {
             return ProviderEvaluation(
                 value: defaultValue,
                 errorCode:

@@ -1,10 +1,3 @@
-//
-//  PublicKeyTests.swift
-//  ToggleTests
-//
-//  Created by Jim Newkirk on 3/21/25.
-//
-
 import Testing
 import Foundation
 @testable import Toggle

@@ -12,7 +12,7 @@ import SimpleLogger
 struct HookFactory {
     private static let logger: LoggerManagerProtocol = {
         .default(
-            subsystem: "hyphen-provider-swift",
+            subsystem: PackageConstants.subsystem,
             category: String(describing: Self.self)
         )
     }()

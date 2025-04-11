@@ -1,9 +1,3 @@
-//
-//  BuildConfig.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/22/25.
-//
 import Foundation
 
 enum BuildConfig {

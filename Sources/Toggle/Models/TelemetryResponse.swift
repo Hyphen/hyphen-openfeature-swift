@@ -1,12 +1,6 @@
-//
-//  ToggleResponse.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/25/25.
-//
 import Foundation
 
-struct TelemetryPayload: Codable, Sendable {
+struct TelemetryResponse: Codable, Sendable {
     let context: HyphenEvaluationContext
     let data: TelemetryData
 }

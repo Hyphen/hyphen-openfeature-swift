@@ -1,9 +1,3 @@
-//
-//  CodableValue.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/21/25.
-//
 import Foundation
 
 public enum CodableValue: Codable, Equatable, Hashable, Sendable {
