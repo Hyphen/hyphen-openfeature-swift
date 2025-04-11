@@ -1,0 +1,25 @@
+name: "Run Tests"
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Tests"
+    runs-on: macOS-14
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Setup Swift tools
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.9.0"
+
+      - name: "Run 'swift test'"
+        run: swift test
