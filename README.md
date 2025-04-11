@@ -16,9 +16,6 @@ The **Hyphen Toggle OpenFeature Provider** is an OpenFeature provider implementa
 
 ## Installation
 
-Installation
-============
-
 Using the [Swift Package Manager](https://swift.org/package-manager/): either through Xcode > File > Swift Packages > Add Package Dependency... and enter this repo URL (including the `.git` extension), , then choose `Toggle` target. Or add the line  `.package(url: "https://github.com/jnewkirk/hyphen-openfeature-swift", from: "0.2.0")` in the `dependencies` section of your `Package.swift` file.
 
 ## Setup and Initialization
