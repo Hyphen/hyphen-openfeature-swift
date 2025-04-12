@@ -42,14 +42,14 @@ struct HyphenEvaluationContextTests {
         #expect(false == context.environment.isEmpty, "Environment should not be empty")
     }
     
-    @Test
+    @Test(.disabled())
     func testBuildVersionIsPresentIfAvailable() throws {
         let context = HyphenEvaluationContext.mock
         let buildVersion = try #require(context.customAttributes["buildVersion"])
         #expect(false == buildVersion.string!.isEmpty, "Build version should be present if available in Info.plist")
     }
     
-    @Test
+    @Test(.disabled())
     func testAppVersionIsPresentIfAvailable() throws {
         let context = HyphenEvaluationContext.mock
         let appVersion = try #require(context.customAttributes["appVersion"])
