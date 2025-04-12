@@ -7,7 +7,6 @@ let package = Package(
     name: "Toggle",
     platforms: [.iOS(.v15), .macOS(.v14)],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "Toggle",
             targets: ["Toggle"])
@@ -16,8 +15,6 @@ let package = Package(
         .package(url: "https://github.com/open-feature/swift-sdk.git", from: "0.3.0")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Toggle",
             dependencies: [

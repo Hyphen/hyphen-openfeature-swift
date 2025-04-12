@@ -1,10 +1,3 @@
-//
-//  HyphenProvider.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/17/25.
-//
-
 @preconcurrency import OpenFeature
 import Foundation
 import Network

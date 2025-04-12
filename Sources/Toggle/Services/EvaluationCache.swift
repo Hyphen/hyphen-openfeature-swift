@@ -1,9 +1,3 @@
-//
-//  EvaluationCache.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 4/10/25.
-//
 import Foundation
 
 internal final class EvaluationCache {

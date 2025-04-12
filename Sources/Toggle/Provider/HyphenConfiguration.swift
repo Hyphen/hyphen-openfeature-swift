@@ -1,10 +1,3 @@
-//
-//  HyphenOptions.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/26/25.
-//
-
 import Foundation
 
 public struct HyphenConfiguration {

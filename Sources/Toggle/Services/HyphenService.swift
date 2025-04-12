@@ -1,10 +1,3 @@
-//
-//  HyphenService.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 3/22/25.
-//
-
 import Foundation
 import Network
 import OpenFeature

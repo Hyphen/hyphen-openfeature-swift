@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  Toggle
-//
-//  Created by Jim Newkirk on 4/9/25.
-//
-
 import Foundation
 import OpenFeature
 @testable import Toggle
