@@ -24,9 +24,6 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenFeature", package: "swift-sdk"),
                 .product(name: "SimpleLogger", package: "SimpleLogger")
-            ],
-            swiftSettings: [
-                .swiftLanguageMode(.v5)
             ]
         ),
         .testTarget(
@@ -34,9 +31,6 @@ let package = Package(
             dependencies: [
                 "Toggle",
                 .product(name: "OpenFeature", package: "swift-sdk")
-            ],
-            swiftSettings: [
-                .swiftLanguageMode(.v5)
             ]
         )
     ]
