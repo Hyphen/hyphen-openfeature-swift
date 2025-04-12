@@ -108,3 +108,19 @@ Provide a `HyphenEvaluationContext` to pass contextual data for feature evaluati
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
+
+## Dependencies
+
+### OpenFeature iOS SDK
+
+<!-- x-hide-in-docs-start -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/white/openfeature-horizontal-white.svg" />
+    <img align="center" alt="OpenFeature Logo" src="https://raw.githubusercontent.com/open-feature/community/0e23508c163a6a1ac8c0ced3e4bd78faafe627c7/assets/logo/horizontal/black/openfeature-horizontal-black.svg" />
+  </picture>
+</p>
+
+- OpenFeature is an open specification that provides a vendor-agnostic, community-driven API for feature flagging that works with your favorite feature flag management tool or in-house solution. 
+- License: [APACHE 2.0](https://github.com/open-feature/swift-sdk/blob/main/LICENSE)
+- Repo: https://github.com/open-feature/swift-sdk
