@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import OpenFeature
 
 public struct HyphenEvaluationContext: Identifiable, Codable, Equatable, Hashable, Sendable {
