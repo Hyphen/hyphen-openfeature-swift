@@ -7,16 +7,8 @@
 
 import Foundation
 import OpenFeature
-import SimpleLogger
 
 struct HookFactory {
-    private static let logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-
     let service: HyphenService
     
     static func makeHook(for type: FlagValueType, service: HyphenService) -> any Hook {
@@ -27,7 +19,7 @@ struct HookFactory {
         case .double: return DoubleHook(service: service)
         case .object: return ObjectHook(service: service)
         @unknown default:
-            logger.error("Unsupported hook type")
+            LoggerManager.shared.error("Unsupported hook type")
         }
     }
 }

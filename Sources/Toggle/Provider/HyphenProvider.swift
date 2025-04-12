@@ -5,24 +5,16 @@
 //  Created by Jim Newkirk on 3/17/25.
 //
 
-import OpenFeature
+@preconcurrency import OpenFeature
 import Foundation
 import Network
 import Combine
-import SimpleLogger
 
 public struct HyphenMetadata: ProviderMetadata {
     public var name: String? = PackageConstants.subsystem
 }
 
 public final class HyphenProvider: FeatureProvider {
-    private lazy var logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-    
     public init(using configuration: HyphenConfiguration, hooks: [any OpenFeature.Hook] = [], apiClient: ApiClientProtocol = ApiClient()) {
         self.metadata = HyphenMetadata()
         self.eventHandler = EventHandler()
@@ -64,14 +56,14 @@ public final class HyphenProvider: FeatureProvider {
     }
     
     public func initialize(initialContext: EvaluationContext?) async throws {
-        logger.info("initialize: initialContext: \(String(describing: initialContext?.getTargetingKey()))")
+        LoggerManager.shared.info("initialize: initialContext: \(String(describing: initialContext?.getTargetingKey()))")
         
         try await evaluate(initialContext)
     }
     
     public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) async throws {
-        logger.info("onCentextSet: old: \(String(describing: oldContext?.getTargetingKey()))")
-        logger.info("onCentextSet: new: \(newContext.getTargetingKey())")
+        LoggerManager.shared.info("onCentextSet: old: \(String(describing: oldContext?.getTargetingKey()))")
+        LoggerManager.shared.info("onCentextSet: new: \(newContext.getTargetingKey())")
         
         try await evaluate(newContext)
     }
@@ -79,7 +71,7 @@ public final class HyphenProvider: FeatureProvider {
     public func getBooleanEvaluation(key: String,
                               defaultValue: Bool,
                               context: EvaluationContext?) throws -> OpenFeature.ProviderEvaluation<Bool> {
-        logger.info("getBooleanEvaluation: key: \(key), targetingId: context: \(String(describing: context?.getTargetingKey()))")
+        LoggerManager.shared.info("getBooleanEvaluation: key: \(key), targetingId: context: \(String(describing: context?.getTargetingKey()))")
         
         do {
             return try hyphenService.getBooleanEvaluation(key: key, defaultValue: defaultValue, context: context)
@@ -130,10 +122,10 @@ public final class HyphenProvider: FeatureProvider {
             .sink { [weak self] event in
                 guard let self else { return }
 
-                logger.info("Observed internal event: \(event)")
+                LoggerManager.shared.info("Observed internal event: \(event)")
 
                 if event == .stale {
-                    logger.info("Handling stale event: triggering evaluate")
+                    LoggerManager.shared.info("Handling stale event: triggering evaluate")
 
                     Task.detached {
                         try? await self.evaluate(self.lastContext)

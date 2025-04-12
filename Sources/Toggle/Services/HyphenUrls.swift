@@ -1,14 +1,6 @@
 import Foundation
-import SimpleLogger
 
 public struct HyphenUrls {
-    private var logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-    
     public static let evaluationPath = "toggle/evaluate"
     public static let telemetryPath = "toggle/telemetry"
 
@@ -61,7 +53,7 @@ public struct HyphenUrls {
 
             for knownPath in knownPaths {
                 if url.path.hasSuffix("/\(knownPath)") {
-                    logger.warning(
+                    LoggerManager.shared.info(
                         "[HyphenUrls] Custom URL '\(url)' includes known path '\(knownPath)'. Trimming it before appending '\(path)'."
                     )
 

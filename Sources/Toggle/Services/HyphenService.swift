@@ -8,16 +8,8 @@
 import Foundation
 import Network
 import OpenFeature
-import SimpleLogger
 
 struct HyphenService {
-    private var logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-
     internal init(using configuration: HyphenConfiguration, apiClient: ApiClientProtocol = ApiClient(), eventHandler: EventHandler) {
         self.configuration = configuration
         self.apiClient = apiClient
@@ -54,7 +46,7 @@ struct HyphenService {
                 self.evaluationCache = EvaluationCache(cached: cachedEvaluationResponse)
             }
         } catch {
-            logger.error("Evaluation failed: \(error.localizedDescription)")
+            LoggerManager.shared.error("Evaluation failed: \(error.localizedDescription)")
         }
     }
 
@@ -66,24 +58,16 @@ struct HyphenService {
     ) async {
         guard configuration.enableToggleUsage else { return }
 
-        guard
-            let hyphenContext = HyphenEvaluationContext.from(
-                context: evaluationContext,
-                application: configuration.application,
-                environment: configuration.environment)
+        guard let hyphenContext = HyphenEvaluationContext.from(
+            context: evaluationContext,
+            application: configuration.application,
+            environment: configuration.environment)
         else {
-            logger
-                .error(
-                    "Failed to create HyphenEvaluationContext - telemetry failed"
-                )
+            LoggerManager.shared.error("Failed to create HyphenEvaluationContext - telemetry failed")
             return
         }
 
-        let type: String =
-            details.flagMetadata["type"]?.asString()
-            ?? String(
-                describing: type(of: details.value)
-            )
+        let type: String = details.flagMetadata["type"]?.asString() ?? String(describing: type(of: details.value))
 
         let evaluation = Evaluation(
             key: details.flagKey,
@@ -103,8 +87,7 @@ struct HyphenService {
                     body: telemetry
                 ) as Empty?
         } catch {
-            logger
-                .error("Telemetry update failed: \(error.localizedDescription)")
+            LoggerManager.shared.error("Telemetry update failed: \(error.localizedDescription)")
         }
     }
 
@@ -177,7 +160,7 @@ struct HyphenService {
         context: EvaluationContext?,
         extract: (CodableValue) -> T?
     ) throws -> ProviderEvaluation<T> {
-        logger.info("get\(String(describing: T.self)) Evaluation: key: \(key), targetingId: \(String(describing: context?.getTargetingKey()))")
+        LoggerManager.shared.info("get\(String(describing: T.self)) Evaluation: key: \(key), targetingId: \(String(describing: context?.getTargetingKey()))")
         
         guard let cachedResponse = evaluationCache.evaluationResponse else {
             return ProviderEvaluation(

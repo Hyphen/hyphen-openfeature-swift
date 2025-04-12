@@ -6,17 +6,9 @@
 //
 import Foundation
 @preconcurrency import OpenFeature
-import SimpleLogger
 
 struct HookTelemetryHelper {
-    private static let logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-    
-    private init() { }
+   private init() { }
     
     static func sendTelemetry<HookValue>(
         using service: HyphenService,
@@ -26,7 +18,7 @@ struct HookTelemetryHelper {
         print("🟢 Hook AFTER evaluation for flag: \(hookContext.flagKey), result: \(details.value)")
         
         guard let evaluationContext = hookContext.ctx else {
-            logger.error("In - afterHook - evaluationContext is nil")
+            LoggerManager.shared.error("In - afterHook - evaluationContext is nil")
             return
         }
         

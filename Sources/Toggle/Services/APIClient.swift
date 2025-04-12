@@ -1,14 +1,6 @@
 import Foundation
-import SimpleLogger
 
 public final class ApiClient: ApiClientProtocol {
-    private lazy var logger: LoggerManagerProtocol = {
-        .default(
-            subsystem: PackageConstants.subsystem,
-            category: String(describing: Self.self)
-        )
-    }()
-    
     public init() { }
     
     private func session(options: NetworkOptions) -> URLSession {
@@ -57,7 +49,7 @@ public final class ApiClient: ApiClientProtocol {
         for attempt in 1 ... options.maxRetries {
             for baseURL in baseURLs {
                 do {
-                    logger.debug("Attempting request to \(baseURL), attempt \(attempt)")
+                    LoggerManager.shared.debug("Attempting request to \(baseURL), attempt \(attempt)")
                     return try await requestOnce(
                         from: baseURL,
                         httpMethod: httpMethod,
@@ -66,7 +58,7 @@ public final class ApiClient: ApiClientProtocol {
                         options: options
                     )
                 } catch {
-                    logger.warning("Request to \(baseURL) failed: \(error)")
+                    LoggerManager.shared.debug("Request to \(baseURL) failed: \(error)")
                     lastError = error
                     if !shouldRetry(error: error) {
                         throw error

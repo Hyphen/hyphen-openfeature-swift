@@ -1,15 +1,6 @@
 {
-  "originHash" : "b0e5dcfb0adb20daa4f54f8a859c9ac0075968bb45719668d562075fb63b821d",
+  "originHash" : "95ce2756e3c82f45d1296170f5566f9aa160442e28b5f0110977f3a1d002bfc5",
   "pins" : [
-    {
-      "identity" : "simplelogger",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/fatbobman/SimpleLogger",
-      "state" : {
-        "revision" : "475edf2a208f9840cd37a7db7b0c894164954e75",
-        "version" : "0.1.2"
-      }
-    },
     {
       "identity" : "swift-sdk",
       "kind" : "remoteSourceControl",
