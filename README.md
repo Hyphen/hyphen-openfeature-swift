@@ -2,6 +2,9 @@
 
 The **Hyphen Toggle OpenFeature Provider** is an OpenFeature provider implementation for the Hyphen Toggle platform using Swift. It enables feature flag evaluation using the OpenFeature standard.
 
+![Build Status](https://github.com/jnewkirk/hyphen-openfeature-swift/actions/workflows/swift.yml/badge.svg) ![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/jnewkirk/hyphen-openfeature-swift?label=Version) ![Platforms: iOS | macOS](https://img.shields.io/badge/platforms-iOS%20|%20macOS-blue?logo=apple)
+![SPM Compatible](https://img.shields.io/badge/SPM-Compatible-orange?logo=swift)
+
 ---
 
 ## Table of Contents
